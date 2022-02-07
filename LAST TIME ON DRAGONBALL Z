@@ -1,0 +1,10 @@
+I finished a Tensorflow NN that worked with like 70% accuracy, but I didn't like it so I talked to Luke.
+
+Now I'm doing a fully convolutional network with layers of average pooling and convolution.
+
+I tried to get into Pytorch and found it to be just as obtuse as tensorflow so I'm sticking with tensorflow.
+
+What to do next:
+Figure out what convolutional networks do, and their hyperparameters (filters, strides, etc.)
+Figure out average pooling layers and their hyperparameters (...)
+Review messages sent by Luke on 8/17/2021 for more NN details.
