@@ -65,7 +65,7 @@ model.compile(
 )
 
 # Trains model
-epochs = 50
+epochs = 10
 history = model.fit(
     train_ds,
     validation_data=val_ds,
