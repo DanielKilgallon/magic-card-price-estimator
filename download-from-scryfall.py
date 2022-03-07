@@ -1,11 +1,8 @@
+import requests
 import math
 import tensorflow as tf
-from tensorflow.keras import models
-import numpy as np
-import requests
-
 from PIL import Image
-from numpy.core.records import array
+import numpy as np
 
 # card_obj_fields = ['cmc', 'color_identity', 'type_line', 'power','toughness', 'oracle_text']
 card_obj_fields = ['oracle_text']
@@ -16,8 +13,9 @@ image_size = [25, 25]
 card_counter = 0
 card_stop_spot = 10
 
-image_arr = []
 training_labels = []
+image_arr = []
+
 card_labels = []
 
 download_url = requests.get('https://api.scryfall.com/bulk-data/27bf3214-1271-490b-bdfe-c0be6c23d02e').json()['download_uri']
@@ -65,14 +63,6 @@ for card_obj in json_data:
         continue
     card_labels.append(card_obj["name"])
     price_value = float(price_value)
-    if price_value < 1:
-        training_labels.append(0)
-    elif price_value >= 1 and price_value < 5:
-        training_labels.append(1)
-    elif price_value >= 5:
-        training_labels.append(2)
-    else:
-        training_labels.append(0)
 
     array_size = math.ceil(math.sqrt(len(card_data_arr)))
     card_spot = 1
@@ -103,65 +93,7 @@ for card_obj in json_data:
     resized = tf.image.resize(tf_arr, image_size)[0,...,0].numpy()
     resized_image_data = np.array(resized)
     image_arr.append(resized_image_data)
-
-np_image_arr = np.array(image_arr)
-
-np_training_labels = np.array([int(num) for num in training_labels])
-np_training_labels = np.array(training_labels)
-
-class_names = ['less than 1 dollar', '1 dollar', '5 dollar']
-
-# build network
-model = models.Sequential()
-model.add(tf.keras.layers.Conv2D(25, kernel_size=3, strides=1, activation='relu', input_shape=(25, 25, 1)))
-model.add(tf.keras.layers.PReLU(alpha_initializer='zeros',alpha_regularizer=None,alpha_constraint=None,shared_axes=None))
-model.add(tf.keras.layers.Conv2D(25, kernel_size=5, strides=1, activation='relu'))
-model.add(tf.keras.layers.PReLU(alpha_initializer='zeros',alpha_regularizer=None,alpha_constraint=None,shared_axes=None))
-model.add(tf.keras.layers.Conv2D(25, kernel_size=2, strides=1, activation='relu'))
-
-# add some max pooling here
-model.add(tf.keras.layers.MaxPooling2D(pool_size=3, strides=1, padding="valid"))
-
-model.add(tf.keras.layers.Conv2D(25, kernel_size=1, strides=1, activation='relu'))
-model.add(tf.keras.layers.PReLU(alpha_initializer='zeros',alpha_regularizer=None,alpha_constraint=None,shared_axes=None))
-model.add(tf.keras.layers.Conv2D(25, kernel_size=1, strides=1, activation='relu'))
-model.add(tf.keras.layers.PReLU(alpha_initializer='zeros',alpha_regularizer=None,alpha_constraint=None,shared_axes=None))
-model.add(tf.keras.layers.Conv2D(25, kernel_size=1, strides=1, activation='relu'))
-model.add(tf.keras.layers.PReLU(alpha_initializer='zeros',alpha_regularizer=None,alpha_constraint=None,shared_axes=None))
-
-print(model.summary())
-
-model.compile(optimizer='adam',
-              loss='categorical_crossentropy',
-              metrics=['accuracy'])
-
-# history = model.fit(np_image_arr, np_training_labels, epochs=4)
-print('model complete. prediction start!')
-# predict_image = model.predict(np_image_arr)
-# print(card_labels[0])
-print(len(model.layers))
-# print(predict_image)
-
-"""
-model = keras.Sequential([
-    keras.layers.Flatten(input_shape=(25, 25)),  # input layer
-    keras.layers.Dense(128, activation='prelu'), # hidden layer
-    keras.layers.Dense(3, activation='softmax'), # output layer
-])
-
-model.compile(optimizer='adam',
-                loss='sparse_categorical_crossentropy',
-                metrics=['accuracy'])
-
-model.fit(np_image_arr, np_training_labels, epochs=4)
-
-print('model complete. prediction start!')
-predictions = model.predict(np_image_arr)
-temp = 1
-print(card_labels[temp])
-print(class_names[np.argmax(predictions[temp])])
     # Converting numbers to uint8 for image 
-    # resized_image_data = np.array(resized, dtype=np.uint8)
-    # img = Image.fromarray(resized_image_data)
-    # img.save(f'images/{image_name}.png')
-#"""
+    resized_image_data = np.array(resized, dtype=np.uint8)
+    img = Image.fromarray(resized_image_data)
+    img.save(f'images/{image_name}.png')
