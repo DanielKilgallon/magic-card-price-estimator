@@ -46,7 +46,7 @@ num_classes = len(class_names)
 
 # Defines the model
 model = Sequential([
-    layers.Conv2D(16, 1,padding='same', activation='relu'),
+    layers.Conv2D(16, 1, padding='same', activation='relu'),
     layers.AveragePooling2D(),
     layers.Conv2D(32, 1, padding='same', activation='relu'),
     layers.AveragePooling2D(),
