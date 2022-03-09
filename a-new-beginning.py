@@ -1,36 +1,55 @@
-from collections import Counter
-
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import os
-import math
+import PIL
+import glob
+import tensorflow as tf
 
-filesG = os.listdir('training-images/GreaterThanCutOff')
-filesL = os.listdir('training-images/LessThanCutOff')
-some_list = []
-for file in filesG:
-    some_list.append(int(math.ceil(float(file.split('~')[0]))))
-for file in filesL:
-    some_list.append(int(math.ceil(float(file.split('~')[0]))))
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras.models import Sequential
 
-sorted_list = sorted(some_list)
-sorted_counted = Counter(sorted_list)
+pngs = glob.glob('data/training-images/*.png')
 
-range_length = list(range(max(some_list))) # Get the largest value to get the range.
-data_series = {}
+ims = {}
+for png in pngs:
+    ims[png]=np.array(PIL.Image.open(png))
 
-for i in range_length:
-    data_series[i] = 0 # Initialize series so that we have a template and we just have to fill in the values.
+questions = np.array([each for each in ims.values()]).astype(np.float32)
+solutions = np.array([float(each.split('/')[2].split('~')[0]) for each in ims]).astype(np.float32)
 
-for key, value in sorted_counted.items():
-    data_series[key] = value
+model = tf.keras.Sequential([
+  tf.keras.layers.Conv2D(input_shape=(25, 25, 1), filters=3, kernel_size=3, activation='relu'),
+  tf.keras.layers.Conv2D(filters=3, kernel_size=15, activation='relu'),
+  tf.keras.layers.AveragePooling2D(),
+  tf.keras.layers.Conv2D(filters=3, kernel_size=15, activation='relu'),
+  tf.keras.layers.Conv2D(filters=3, kernel_size=15, activation='relu'),
+  tf.keras.layers.AveragePooling2D(),
+  tf.keras.layers.Conv2D(filters=3, kernel_size=15, activation='relu'),
+  tf.keras.layers.Conv2D(filters=3, kernel_size=15, activation='relu'),
+  tf.keras.layers.Flatten(),
+  tf.keras.layers.Dense(units=512, activation='relu'),
+  tf.keras.layers.Dense(units=256, activation='relu'),
+  tf.keras.layers.Dense(units=64, activation='relu'),
+  tf.keras.layers.Dense(units=1)
+])
 
-data_series = pd.Series(data_series)
-x_values = data_series.index
 
-# you can customize the limits of the x-axis
-# plt.xlim(0, max(some_list))
-plt.bar(x_values, data_series.values)
+model.compile(loss='mean_squared_error', optimizer="adam")
 
-plt.show() 
+# model.compile(
+#     optimizer='adam',
+#     loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+#     metrics=['accuracy']
+# )
+
+history = model.fit(questions, solutions, epochs=30, batch_size=200, verbose=1)
+"""
+test_answers = model.predict(test_questions)
+
+
+
+print(pngs[0])
+print(questions[0])
+print(solutions[0])
+# """

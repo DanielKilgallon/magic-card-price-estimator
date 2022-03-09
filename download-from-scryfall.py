@@ -58,6 +58,7 @@ for card_obj in json_data:
     if invalid_oracle_text == True:
         continue
     price_value = float(price_value)
+    folder_prefix = None
     if price_value < PRICE_CUTOFF:
         folder_prefix="LessThanCutOff"
     elif price_value >= PRICE_CUTOFF:
@@ -97,5 +98,10 @@ for card_obj in json_data:
     # Converting numbers to uint8 for image 
     resized_image_data = np.array(resized, dtype=np.uint8)
     img = Image.fromarray(resized_image_data)
-    os.makedirs(f'training-images/{folder_prefix}/', exist_ok=True)
-    img.save(f'training-images/{folder_prefix}/{image_name}.png')
+
+    # Saving Image
+    if not folder_prefix is None: 
+        os.makedirs(f'training-images/{folder_prefix}/', exist_ok=True)
+        img.save(f'training-images/{folder_prefix}/{image_name}.png')
+    else:
+        img.save(f'training-images/{image_name}.png')
