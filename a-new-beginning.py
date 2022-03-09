@@ -10,7 +10,7 @@ pngs = glob.glob('all-images/*.png')
 
 ims = {}
 for png in pngs:
-  ims[png] = np.array(PIL.Image.open(png))
+  ims[png] = np.array(PIL.Image.open(png)) / 255.0
 
 # gets images as a numpy array
 questions = np.array([each for each in ims.values()]).astype(np.float32)
@@ -38,18 +38,14 @@ model = tf.keras.Sequential([
   tf.keras.layers.GlobalAveragePooling2D(keepdims=True),
   tf.keras.layers.Conv2D(filters=512, kernel_size=1, activation='relu', padding="same"),
   tf.keras.layers.Dropout(.50),
-  tf.keras.layers.Conv2D(filters=1, kernel_size=1, activation='relu', padding="same", kernel_initializer='he_normal'),
+  tf.keras.layers.Conv2D(filters=1, kernel_size=1, activation=None, padding="same", kernel_initializer='he_normal'),
   tf.keras.layers.Reshape(target_shape=(1,))
 ])
 
-def luke_mean_squared_error(thingy1, thingy2):
-  print(thingy1)
-  return tf.reduce_mean(tf.square(tf.subtract(thingy1, thingy2)))
-
-model.compile(loss=tf.keras.losses.MeanSquaredError(), optimizer="SGD")
-model.optimizer.lr = 0.01 # Luke says it's important don't remove for reasons
+model.compile(loss=tf.keras.losses.MeanSquaredError(), optimizer="SGD", metrics=['accuracy'])
+model.optimizer.lr = 0.001 # Luke says it's important don't remove for reasons
 # ^ but actually important to expose this variable for hyper parameter tuning
-history = model.fit(questions, solutions, epochs=3, batch_size=100, verbose=1)
+history = model.fit(x=questions, y=solutions, epochs=20, batch_size=100, verbose=1)
 
 # Test model
 
@@ -57,14 +53,15 @@ prediction_pngs = glob.glob('prediction-images/*.png')
 
 prediction_ims = {}
 for png in prediction_pngs:
-  prediction_ims[png] = np.array(PIL.Image.open(png))
-  break
+  prediction_ims[png] = np.array(PIL.Image.open(png)) / 255.0
 
 prediction_questions = np.array([each for each in prediction_ims.values()]).astype(np.float32)
 
 answers = model.predict(prediction_questions)
-print(prediction_questions)
-print(answers)
+# print(prediction_questions)
+print("prediction: {}".format(answers[0]))
+print("correct: {}".format(np.log(float(prediction_pngs[0].split('\\')[-1].split('~')[0])) / np.log(10)))
+
 # for i in range(len(answers)):
 #   print('\ncard: {}'.format(prediction_pngs[i].split('\\')[-1].split('~')[-1].split('.')[0]))
 #   print('prediction: ${}'.format(round(float(answers[i][0]), 2)))

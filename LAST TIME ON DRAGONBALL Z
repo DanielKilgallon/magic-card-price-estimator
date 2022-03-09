@@ -1,3 +1,20 @@
+Normalize data, get rid of awful -2/-1 hell
+Add Noise to data??
+You need to shift -2 cards to other similar values to help massage it into a normal distribution.
+Remove 100 samples from training data for VALIDATION ONLY. Use them to measure accuracy of predictions.
+
+Un-normal outputs to get price amounts. (multiply by log(10) and then exponential them)
+
+increase epochs by 20, reduce lr (learning rate by 10x).
+maybe add multiple lines of model.fit? How to run model.fit multiple times
+
+Research - Learning Rate Scheduler/Reduce on Plateau
+
+Once all of these are mostly done, start playing with network again.
+For refresher, review messages sent in The Boys! And Crash!! on 3/9/2022
+
+---
+
 I finished a Tensorflow NN that worked with like 70% accuracy, but I didn't like it so I talked to Luke.
 
 Now I'm doing a fully convolutional network with layers of average pooling and convolution.

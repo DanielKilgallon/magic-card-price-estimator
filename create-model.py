@@ -74,7 +74,7 @@ model.add(tf.keras.layers.PReLU(alpha_initializer='zeros',
 
 # print(model.summary())
 
-model.compile(optimizer='adam',
+model.compile(optimizer='SGD',
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
