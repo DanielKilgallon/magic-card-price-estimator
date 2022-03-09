@@ -15,7 +15,7 @@ for file in filesG:
 # Modify price data
 modified_price_data = []
 for price_point in price_data:
-    modified_price_data.append(math.log(price_point) / math.log(10))
+    modified_price_data.append(np.log(price_point) / np.log(10))
 
 sorted_list = sorted(modified_price_data)
 sorted_counted = Counter(sorted_list)
