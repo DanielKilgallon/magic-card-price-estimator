@@ -7,7 +7,7 @@ import os
 import math
 
 # Get prices from files
-filesG = os.listdir('data/training-images/')
+filesG = os.listdir('all-images/')
 price_data = []
 for file in filesG:
     price_data.append(float(file.split('~')[0]))
